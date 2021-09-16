@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="upload">
+      <UniqueIdentifier>{12e04567-2af4-4e41-abe9-1a2ff4a2b6a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{8d40e386-0d80-4a1e-aa42-a379b3bb7b80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="app">
+      <UniqueIdentifier>{2ee0ac60-bb5a-4bcb-a824-51700747a89f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="uploadlistctrl.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="upload.h">
+      <Filter>upload</Filter>
+    </ClInclude>
+    <ClInclude Include="authorizedlg.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="interop2.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="interop2Dlg.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>upload</Filter>
+    </ClInclude>
+    <ClInclude Include="json.h">
+      <Filter>upload</Filter>
+    </ClInclude>
+    <ClInclude Include="thread.h">
+      <Filter>upload</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="uploadlistctrl.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="upload.cpp">
+      <Filter>upload</Filter>
+    </ClCompile>
+    <ClCompile Include="thread.cpp">
+      <Filter>upload</Filter>
+    </ClCompile>
+    <ClCompile Include="authorizedlg.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="interop2Dlg.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="interop2.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>upload</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="interop2.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\interop2.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\interop2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
