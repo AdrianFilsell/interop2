@@ -1,0 +1,54 @@
+created a dropbox account
+created an app via the app console from https://www.dropbox.com/developers/ to get a App Key and App Secret
+
+build openssl - follow TroubleChute guide https://www.youtube.com/watch?v=PMHEoBkxYaQ
+	download project from https://github.com/openssl/openssl
+	download and install 64 bit perl from http://strawberryperl.com/
+	download and install 64 bit nasm from https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/win64/
+	update system environment PATH variable to include both nasm and perl "edit the system environment variables"
+	create a temp folder for the build
+	create an output folder for the build
+	open instance of "x64 Native Tools Command Prompt for VS 2019"
+		cpan -i Text::Template									( installs perl module )
+		cpan -i Test::More									( installs perl module )
+		browse to openssl folder
+		perl Configure --debug VC-WIN64A prefix="outputopensslpath" openssldir="tempopensslpath" no-shared	( static x64 debug )
+		nmake test
+		nmake
+		nmake install_sw
+
+build libcurl - follow TroubleChute guide https://www.youtube.com/watch?v=q_mXVZ6VJs4
+	download project from https://curl.haxx.se/download.html
+	open .../curl-7.78.0/projects/Windows/VC15/curl-all.sln
+	select build/configuration static lib with openssl support ( for dropbox https endpoints ) x64 debug ( 18th build option )
+	added a couple of property pages for additional openssl file/lib include paths
+	copied the certificate file curl-ca-bundle.crt to exe location
+	test build by runnng curld 
+
+created interop2 mfc dialog project
+	create property sheets to include paths to files and libs and add lib dependencies and define symbol CURL_STATICLIB;DEBUGBUILD;
+
+	placed the certificates file in same place as exe via xcopy build step
+	
+	wrote owner draw list crtl which renders a prgress ctrl using windows themes
+
+	allow user to populate list ctrl and select 1 of 3 types of execution
+
+	wrote json reader using boost property tree to parse json result
+	
+	wrote scheduler using intel tbb to upload many files in one 'syncronous' call
+
+	upload : authorize
+		 as I still use the c++ wrapper for ie ole ctrl AND ie not supported by dropbox shell execute chrome
+		 supply user with a 'clunky' authorize dlg
+
+	upload : token
+		 curl https://api.dropbox.com/oauth2/token -d code=<AUTHORIZATION_CODE> -d grant_type=authorization_code -u <APP_KEY>:<APP_SECRET>
+		 use boost property tree to parse json result
+
+	upload : binary file
+		 curl -X POST https://content.dropboxapi.com/2/files/upload \
+		--header "Authorization: Bearer " \
+		--header "Dropbox-API-Arg: {\"path\": \"/Homework/math/Matrices.txt\",\"mode\": \"add\",\"autorename\": true,\"mute\": false,\"strict_conflict\": false}" \
+		--header "Content-Type: application/octet-stream" \
+		--data-binary @local_file.txt
