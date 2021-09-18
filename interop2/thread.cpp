@@ -25,6 +25,23 @@ uploadthread::~uploadthread()
 	stop( INFINITE );
 }
 
+void uploadthread::setthread(const std::vector<std::shared_ptr<dropboxupload>>& v,uploadthread *p)
+{
+	auto i = v.cbegin(),end = v.cend();
+	for(;i!=end;++i)
+	{
+		ASSERT(!p || !(*i)->getthread());
+		(*i)->setthread(p);
+	}
+}
+
+void uploadthread::setprogress(const std::vector<std::shared_ptr<dropboxupload>>& v,const double d)
+{
+	auto i = v.cbegin(),end = v.cend();
+	for(;i!=end;++i)
+		(*i)->setprogress(d);
+}
+
 bool uploadthread::start( std::shared_ptr<const uploadthreadrequest> sp,std::shared_ptr<const scheduler> spSched, HWND hNotify )
 {
 	stop( INFINITE );
@@ -35,6 +52,7 @@ bool uploadthread::start( std::shared_ptr<const uploadthreadrequest> sp,std::sha
 	m_sp = sp;
 	m_spSched = spSched;
 	m_hNotify = hNotify;
+	setthread(sp->getuploads(),this);
 
 	CreateThread();
 	SetThreadPriority( THREAD_PRIORITY_BELOW_NORMAL );
@@ -53,10 +71,14 @@ bool uploadthread::stop( const DWORD dwTimeOut )
 	m_hThread = NULL;
 
 	if( m_sp )
+	{
+		setthread(m_sp->getuploads(),nullptr);
 		m_sp->setcancelled(false);
+	}
 
 	m_sp = nullptr;
 	m_spSched = nullptr;
+	m_hNotify = NULL;
 
 	return true;
 }

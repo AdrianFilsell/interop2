@@ -123,14 +123,20 @@ public:
 	uploadthread();
 	virtual ~uploadthread();
 
+	std::shared_ptr<const uploadthreadrequest> getrequest( void ) const { return m_sp; }
+
 	virtual bool start( std::shared_ptr<const uploadthreadrequest> sp, std::shared_ptr<const scheduler> spSched,HWND hNotify );
 	virtual bool stop( const DWORD dwTimeOut );
 	
 	virtual BOOL InitInstance( void ) override;
+
+	static void setprogress(const std::vector<std::shared_ptr<dropboxupload>>& v,const double d);
 protected:	
 	DECLARE_MESSAGE_MAP()
 	
 	HWND m_hNotify;
 	std::shared_ptr<const uploadthreadrequest> m_sp;
 	std::shared_ptr<const scheduler> m_spSched;
+
+	static void setthread(const std::vector<std::shared_ptr<dropboxupload>>& v,uploadthread *p);
 };

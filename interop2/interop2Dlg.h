@@ -32,7 +32,7 @@ protected:
 	HICON m_hIcon;
 
 	std::vector<std::shared_ptr<dropboxupload>> m_vUploads;
-	std::map<std::shared_ptr<uploadthread>,std::set<std::shared_ptr<dropboxupload>>> m_mThreads;
+	std::set<std::shared_ptr<uploadthread>> m_sThreads;
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog()override;

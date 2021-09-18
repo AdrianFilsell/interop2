@@ -125,7 +125,13 @@ BOOL Cinterop2Dlg::OnInitDialog()
 void Cinterop2Dlg::EndModalLoop(int nResult)
 {
 	// just emptying the thread map will stop all async activity
-	m_mThreads.clear();
+	m_sThreads.clear();
+	#ifdef _DEBUG
+	{
+		auto i = m_vUploads.cbegin(), end = m_vUploads.cend();
+		ASSERT(!(*i)->getthread());
+	}
+	#endif
 
 	// call base class
 	CDialogEx::EndModalLoop(nResult);
@@ -267,12 +273,12 @@ LRESULT Cinterop2Dlg::OnUploadDone(WPARAM wParam,LPARAM lParam)
 	if( pThread )
 	{
 		std::shared_ptr<uploadthread> sp(pThread, [](uploadthread*){}); // we dont want this smart ptr to own the thread
-		auto m = m_mThreads.find( sp );
-		if( m != m_mThreads.cend() )
+		auto m = m_sThreads.find( sp );
+		if( m != m_sThreads.cend() )
 		{
 			pThread->stop(INFINITE);
 
-			m_mThreads.erase(m);
+			m_sThreads.erase(m);
 		}
 	}
 
@@ -365,12 +371,11 @@ void Cinterop2Dlg::start( const std::vector<std::shared_ptr<dropboxupload>>& vUp
 			for( ; i != end ; ++i )
 			{
 				std::shared_ptr<uploadthread> spT{new uploadthread };
-				auto m = m_mThreads.insert( std::make_pair( spT, std::set<std::shared_ptr<dropboxupload>>() ) );
-				m.first->second.insert(*i);
-
+				auto s = m_sThreads.insert( spT );
+				
 				std::shared_ptr<uploadthreadrequest> sp{ new uploadthreadrequest({*i},sAccessToken,t) };
 				if( !spT->start(sp,spSched,GetSafeHwnd()) )
-					m_mThreads.erase( m.first );
+					m_sThreads.erase( s.first );
 			}
 		}
 		break;
@@ -378,14 +383,11 @@ void Cinterop2Dlg::start( const std::vector<std::shared_ptr<dropboxupload>>& vUp
 		case uploadthreadrequest::t_serial_tbb:
 		{
 			std::shared_ptr<uploadthread> spT{new uploadthread };
-			auto m = m_mThreads.insert( std::make_pair( spT, std::set<std::shared_ptr<dropboxupload>>() ) );
-			auto i = vUploads.cbegin(), end = vUploads.cend();
-			for( ; i != end ; ++i )
-				m.first->second.insert(*i);
-
+			auto s = m_sThreads.insert( spT );
+			
 			std::shared_ptr<uploadthreadrequest> sp{ new uploadthreadrequest(vUploads,sAccessToken,t) };
 			if( !spT->start(sp,spSched,GetSafeHwnd()) )
-				m_mThreads.erase( m.first );
+				m_sThreads.erase( s.first );
 		}
 		break;
 		default:ASSERT(false);
@@ -394,28 +396,33 @@ void Cinterop2Dlg::start( const std::vector<std::shared_ptr<dropboxupload>>& vUp
 
 void Cinterop2Dlg::stop( const std::vector<std::shared_ptr<dropboxupload>>& vUploads, const bool bResetProgress )
 {
-	// the upload should really store the thread that is currently uploading it...
-	std::set<std::shared_ptr<uploadthread>> s;
-	auto i = vUploads.cbegin(), end = vUploads.cend();
+	std::set<uploadthread*> s;
+	{
+		auto i = vUploads.cbegin(), end = vUploads.cend();
+		for( ; i != end ; ++i )
+			if((*i)->getthread())
+				s.insert((*i)->getthread());
+	}
+
+	auto i = s.cbegin(), end = s.cend();
 	for( ; i != end ; ++i )
 	{
-		auto m = m_mThreads.cbegin(), mend = m_mThreads.cend();
-		for( ; m != mend ; ++m )
-			if( (*m).second.find(*i) != (*m).second.cend() )
-			{
-				(*m).first->stop(INFINITE); // there may be many uploads associated with this thread but lets stop them ALL
+		auto s = m_sThreads.find(std::shared_ptr<uploadthread>(*i, [](uploadthread*){})); // we dont want this smart ptr to own the thread
+		if(s == m_sThreads.cend())
+		{
+			ASSERT(false);
+			continue;
+		}
+
+		const std::vector<std::shared_ptr<dropboxupload>> v = (*s)->getrequest()->getuploads();
+		(*i)->stop(INFINITE); // there may be many uploads associated with this thread but lets stop them ALL
+		
+		if( bResetProgress )
+			uploadthread::setprogress(v,0);
 				
-				if( bResetProgress )
-				{
-					auto j = (*m).second.cbegin(), jend = (*m).second.cend();
-					for( ; j != jend ; ++j )
-						(*j)->setprogress(0);
-				}
-				
-				m_mThreads.erase(m);
-				break;
-			}
+		m_sThreads.erase(s);
 	}
+
 	if( bResetProgress )
 		m_ListCtrl.Invalidate();
 }
