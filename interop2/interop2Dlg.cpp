@@ -127,6 +127,7 @@ void Cinterop2Dlg::EndModalLoop(int nResult)
 	// just emptying the thread map will stop all async activity
 	m_sThreads.clear();
 	#ifdef _DEBUG
+	if(m_vUploads.size())
 	{
 		auto i = m_vUploads.cbegin(), end = m_vUploads.cend();
 		ASSERT(!(*i)->getthread());
